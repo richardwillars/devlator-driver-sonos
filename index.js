@@ -91,6 +91,46 @@ module.exports = {
 			});
 		});
 	},
+	capability_getLEDState: function(device,props) {
+		return new Promise(function(resolve) {
+			var sonosDevice = new sonosInstance(device.specs.address,1400);
+			sonosDevice.getLEDState(function (err, result) {
+				if(err) {
+					err.type = 'Driver';
+					throw err;
+				}
+			  	resolve({on: result.on});
+			});
+		});
+	},
+	capability_setLEDState: function(device,props) {
+		return new Promise(function(resolve) {
+			var sonosDevice = new sonosInstance(device.specs.address,1400);
+			var val = "Off";
+			if(props.on===true) {
+				val = "On";
+			}
+			sonosDevice.setLEDState(val, function (err, result) {
+				if(err) {
+					err.type = 'Driver';
+					throw err;
+				}
+			  	resolve({on: props.on});
+			});
+		});
+	},
+	capability_setName: function(device,props) {
+		return new Promise(function(resolve) {
+			var sonosDevice = new sonosInstance(device.specs.address,1400);
+			sonosDevice.setName(props.name, function (err, result) {
+				if(err) {
+					err.type = 'Driver';
+					throw err;
+				}
+			  	resolve({name: props.name});
+			});
+		});
+	},
 	capability_play: function(device,props) {
 		return new Promise(function(resolve) {
 			var sonosDevice = new sonosInstance(device.specs.address,1400);
@@ -173,6 +213,18 @@ module.exports = {
 			});
 		});
 	},
+	capability_setMuted: function(device,props) {
+		return new Promise(function(resolve) {
+			var sonosDevice = new sonosInstance(device.specs.address,1400);
+			sonosDevice.setMuted(props.muted, function (err, result) {
+				if(err) {
+					err.type = 'Driver';
+					throw err;
+				}
+			  	resolve({muted: props.muted});
+			});
+		});
+	},
 	capability_flushQueue: function(device,props) {
 		return new Promise(function(resolve) {
 			var sonosDevice = new sonosInstance(device.specs.address,1400);
@@ -182,6 +234,18 @@ module.exports = {
 			}
 			sonosDevice.flush(function (err, result) {
 			  	resolve({queueFlushed: true});
+			});
+		});
+	},
+	capability_setVolume: function(device,props) {
+		return new Promise(function(resolve) {
+			var sonosDevice = new sonosInstance(device.specs.address,1400);
+			sonosDevice.setVolume(props.volume, function (err, result) {
+				if(err) {
+					err.type = 'Driver';
+					throw err;
+				}
+			  	resolve({volume: props.volume});
 			});
 		});
 	},
