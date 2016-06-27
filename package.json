@@ -1,0 +1,19 @@
+{
+  "name": "homebox-driver-sonos",
+  "license": "MIT",
+  "description": "Allows the Homebox platform to talk to Sonos devices",
+  "version": "0.0.1",
+  "maintainers": [
+    {
+      "name": "Richard Willars",
+      "email": "richard@richardwillars.com"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/richardwillars/homebox-driver-sonos.git"
+  },
+  "dependencies": {
+    "sonos": "^0.12.0"
+  }
+}
