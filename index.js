@@ -29,6 +29,16 @@ class SonosDriver {
 		return 'http';
 	}
 
+	setEventEmitter(eventEmitter) {
+		this.eventEmitter = eventEmitter;
+		//when something happens with this speaker you can emit an event to let the homebox platform know:
+		//it should only emit events which are valid types (see documentation on speakers for more info)
+		//this.eventEmitter.emit('eventType','driverId','deviceId','value')
+
+		//E.g:
+		//this.eventEmitter.emit('playing','sonos','defghi','abc123');
+	}
+
 	getAuthenticationProcess() {
 		return [];
 	}
@@ -57,27 +67,27 @@ class SonosDriver {
 							address: info.IPAddress,
 							capabilities: {
 								getCurrentTrack: true,
-								getDeviceDescription: true,
+								getDeviceDescription: false,
 								flushQueue: true,
-								getCurrentState: true,
+								getCurrentState: false,
 								getLEDState: true,
-								getMusicLibrary: true,
+								getMusicLibrary: false,
 								getMuted: true,
-								getTopology: true,
-								getVolume: true,
-								getZoneAttrs: true,
-								getZoneInfo: true,
+								getTopology: false,
+								getVolume: false,
+								getZoneAttrs: false,
+								getZoneInfo: false,
 								next: true,
 								pause: true,
 								play: true,
 								previous: true,
-								addToQueueBottom: true,
-								addToQueueNext: true,
-								seek: true,
+								addToQueueBottom: false,
+								addToQueueNext: false,
+								seek: false,
 								setLEDState: true,
 								setMuted: true,
 								setName: true,
-								setPlayMode: true,
+								setPlayMode: false,
 								setVolume: true,
 								stop: true
 							}
