@@ -3,6 +3,17 @@
 var sonos = require('sonos');
 var sonosInstance = require('sonos').Sonos;
 
+/*
+LEFT TO IMPLEMENMT
+addToQueueBottom
+getZoneInfo
+getZoneAttrs
+getTopology
+getMusicLibrary
+getCurrentState
+getDeviceDescription
+*/
+
 class SonosDriver {
 	constructor(driverSettingsObj, interfaces) {
 		var self = this;
@@ -82,8 +93,8 @@ class SonosDriver {
 								play: true,
 								previous: true,
 								addToQueueBottom: false,
-								addToQueueNext: false,
-								seek: false,
+								addToQueueNext: true,
+								seek: true,
 								setLEDState: true,
 								setMuted: true,
 								setName: true,
@@ -315,6 +326,36 @@ class SonosDriver {
 				}
 				resolve({
 					volume: props.volume
+				});
+			});
+		});
+	}
+
+	capability_seek(device, props) {
+		return new Promise(function(resolve) {
+			var sonosDevice = new sonosInstance(device.specs.address, 1400);
+			sonosDevice.seek(props.position, function(err, result) {
+				if (err) {
+					err.type = 'Driver';
+					throw err;
+				}
+				resolve({
+					position: props.position
+				});
+			});
+		});
+	}
+
+	capability_addToQueueNext(device, props) {
+		return new Promise(function(resolve) {
+			var sonosDevice = new sonosInstance(device.specs.address, 1400);
+			sonosDevice.queueNext(props.uri, function(err, result) {
+				if (err) {
+					err.type = 'Driver';
+					throw err;
+				}
+				resolve({
+					queued: true
 				});
 			});
 		});
