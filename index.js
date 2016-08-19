@@ -50,6 +50,10 @@ class SonosDriver {
 		//this.eventEmitter.emit('playing','sonos','defghi','abc123');
 	}
 
+	initDevices(devices) {
+		
+	}
+
 	getAuthenticationProcess() {
 		return [];
 	}
