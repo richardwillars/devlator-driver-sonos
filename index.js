@@ -17,13 +17,13 @@ getDeviceDescription
 class SonosDriver {
 	constructor(driverSettingsObj, interfaces) {
 		var self = this;
-		this.driverSettingsObj = driverSettingsObj;
+		//this.driverSettingsObj = driverSettingsObj;
 
-		this.driverSettings = {};
-		this.driverSettingsObj.get().then(function(settings) {
-			self.driverSettings = settings;
-			lifx.init(self.driverSettings.token);
-		});
+		//this.driverSettings = {};
+		//this.driverSettingsObj.get().then(function(settings) {
+		//	self.driverSettings = settings;
+		//	lifx.init(self.driverSettings.token);
+		//});
 
 		this.interface = interfaces[this.getInterface()];
 	}
@@ -48,6 +48,10 @@ class SonosDriver {
 
 		//E.g:
 		//this.eventEmitter.emit('playing','sonos','defghi','abc123');
+	}
+
+	initDevices(devices) {
+		
 	}
 
 	getAuthenticationProcess() {
