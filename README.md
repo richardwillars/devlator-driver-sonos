@@ -1,18 +1,18 @@
-#devlator-driver-sonos
+#thinglator-driver-sonos
 
-Allows the Devlator platform to control Sonos devices on your local network.
+Allows the Thinglator platform to control Sonos devices on your local network.
 
 
 ## Requirements
 - node.js
-- Devlator - https://github.com/richardwillars/devlator
+- Thinglator - https://github.com/richardwillars/thinglator
 - Ethernet or WiFi (to talk to the Sonos speakers on your local network)
 
 ## Installation
-Navigate to the root of your Devlator installation and run
-> npm install devlator-driver-sonos
+Navigate to the root of your Thinglator installation and run
+> npm install thinglator-driver-sonos
 
-Relaunch devlator by re-running
+Relaunch thinglator by re-running
 > node app.js
 
 ## Test

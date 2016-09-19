@@ -1,17 +1,15 @@
 {
-  "name": "devlator-driver-sonos",
+  "name": "thinglator-driver-sonos",
   "license": "MIT",
-  "description": "Allows the Devlator platform to talk to Sonos devices",
+  "description": "Allows the Thinglator platform to talk to Sonos devices",
   "version": "1.0.0",
-  "maintainers": [
-    {
-      "name": "Richard Willars",
-      "email": "richard@richardwillars.com"
-    }
-  ],
+  "maintainers": [{
+    "name": "Richard Willars",
+    "email": "richard@richardwillars.com"
+  }],
   "repository": {
     "type": "git",
-    "url": "https://github.com/richardwillars/devlator-driver-sonos.git"
+    "url": "https://github.com/richardwillars/thinglator-driver-sonos.git"
   },
   "dependencies": {
     "sonos": "^0.12.0",
