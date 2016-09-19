@@ -1,18 +1,18 @@
-#homebox-driver-sonos
+#devlator-driver-sonos
 
-Allows the Homebox platform to control Sonos devices on your local network.
+Allows the Devlator platform to control Sonos devices on your local network.
 
 
 ## Requirements
 - node.js
-- Homebox - https://github.com/richardwillars/homebox
+- Devlator - https://github.com/richardwillars/devlator
 - Ethernet or WiFi (to talk to the Sonos speakers on your local network)
 
 ## Installation
-Navigate to the root of your Homebox installation and run
-> npm install homebox-driver-sonos
+Navigate to the root of your Devlator installation and run
+> npm install devlator-driver-sonos
 
-Relaunch homebox by re-running
+Relaunch devlator by re-running
 > node app.js
 
 ## Test
