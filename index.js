@@ -34,7 +34,7 @@ class SonosDriver {
 
 	setEventEmitter(eventEmitter) {
 		this.eventEmitter = eventEmitter;
-		//when something happens with this speaker you can emit an event to let the devlator platform know:
+		//when something happens with this speaker you can emit an event to let the thinglator platform know:
 		//it should only emit events which are valid types (see documentation on speakers for more info)
 		//this.eventEmitter.emit('eventType','driverId','deviceId','value')
 
@@ -43,7 +43,7 @@ class SonosDriver {
 	}
 
 	initDevices(devices) {
-		
+
 	}
 
 	getAuthenticationProcess() {
