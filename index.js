@@ -1,361 +1,379 @@
-'use strict';
+/* eslint-disable no-param-reassign */
+const sonos = require('sonos');
+const SonosInstance = require('sonos').Sonos;
 
-var sonos = require('sonos');
-var sonosInstance = require('sonos').Sonos;
-
-/*
-LEFT TO IMPLEMENMT
-addToQueueBottom
-getZoneInfo
-getZoneAttrs
-getTopology
-getMusicLibrary
-getCurrentState
-getDeviceDescription
-*/
 
 class SonosDriver {
-	constructor(driverSettingsObj, interfaces) {
-		var self = this;
-		this.interface = interfaces[this.getInterface()];
-	}
+    constructor() {
+        this.driverSettings = {};
+        this.commsInterface = null;
+    }
 
-	getName() {
-		return 'sonos';
-	}
+    init(driverSettingsObj, commsInterface, eventEmitter) {
+        this.driverSettingsObj = driverSettingsObj;
 
-	getType() {
-		return 'speaker';
-	}
+        this.eventEmitter = eventEmitter;
+        this.commsInterface = commsInterface;
+        return this.driverSettingsObj.get().then((settings) => {
+            this.driverSettings = settings;
+        });
+    }
 
-	getInterface() {
-		return 'http';
-	}
+    getName() {
+        return 'sonos';
+    }
 
-	setEventEmitter(eventEmitter) {
-		this.eventEmitter = eventEmitter;
-		//when something happens with this speaker you can emit an event to let the thinglator platform know:
-		//it should only emit events which are valid types (see documentation on speakers for more info)
-		//this.eventEmitter.emit('eventType','driverId','deviceId','value')
+    getType() {
+        return 'speaker';
+    }
 
-		//E.g:
-		//this.eventEmitter.emit('playing','sonos','defghi','abc123');
-	}
+    getInterface() {
+        return 'http';
+    }
 
-	initDevices(devices) {
+    getEventEmitter() {
+        return this.eventEmitter;
+    }
 
-	}
+    initDevices() {
 
-	getAuthenticationProcess() {
-		return [];
-	}
+    }
 
-	discover() {
-		return new Promise(function(resolve) {
-			var search = sonos.search()
-			var devices = [];
+    getAuthenticationProcess() {
+        return [];
+    }
 
-			search.on('DeviceAvailable', function(deviceObj, model) {
-				deviceObj.getZoneAttrs(function(err, attrs) {
-					if (err) {
-						var e = new Error('Failed to retrieve zone attributes');
-						e.type = 'Driver';
-						throw e;
-					}
-					deviceObj.getZoneInfo(function(err, info) {
-						if (err) {
-							var e = new Error('Failed to retrieve zone information');
-							e.type = 'Driver';
-							throw e;
-						}
-						var device = {
-							deviceId: info.SerialNumber,
-							name: attrs.CurrentZoneName,
-							address: info.IPAddress,
-							capabilities: {
-								getCurrentTrack: true,
-								getDeviceDescription: false,
-								flushQueue: true,
-								getCurrentState: false,
-								getLEDState: true,
-								getMusicLibrary: false,
-								getMuted: true,
-								getTopology: false,
-								getVolume: false,
-								getZoneAttrs: false,
-								getZoneInfo: false,
-								next: true,
-								pause: true,
-								play: true,
-								previous: true,
-								addToQueueBottom: false,
-								addToQueueNext: true,
-								seek: true,
-								setLEDState: true,
-								setMuted: true,
-								setName: true,
-								setPlayMode: false,
-								setVolume: true,
-								stop: true
-							}
-						};
-						devices.push(device);
+    discover() {
+        return new Promise((resolve) => {
+            const search = sonos.search();
+            const devices = [];
 
-					});
-				});
-			});
+            search.on('DeviceAvailable', (deviceObj) => {
+                deviceObj.getZoneAttrs((err, attrs) => {
+                    if (err) {
+                        const e = new Error('Failed to retrieve zone attributes');
+                        e.type = 'Driver';
+                        throw e;
+                    }
+                    deviceObj.getZoneInfo((err2, info) => {
+                        if (err2) {
+                            const e = new Error('Failed to retrieve zone information');
+                            e.type = 'Driver';
+                            throw e;
+                        }
+                        const device = {
+                            deviceId: info.SerialNumber,
+                            name: attrs.CurrentZoneName,
+                            address: info.IPAddress,
+                            commands: {
+                                getCurrentTrack: true,
+                                flushQueue: true,
+                                getLEDState: true,
+                                getMuted: true,
+                                next: true,
+                                pause: true,
+                                play: true,
+                                previous: true,
+                                addToQueueNext: true,
+                                seek: true,
+                                setLEDState: true,
+                                setMuted: true,
+                                setName: true,
+                                setVolume: true,
+                                stop: true
+                            },
+                            events: {
+                                currentAudioTrack: true,
+                                queueFlushed: true,
+                                ledState: true,
+                                mutedAudio: true,
+                                volume: true,
+                                nextAudioTrack: true,
+                                audioPlayingState: true,
+                                previousAudioTrack: true,
+                                addedToQueueNext: true,
+                                seek: true,
+                                name: true
+                            }
+                        };
+                        devices.push(device);
+                    });
+                });
+            });
 
-			//Stop searching and destroy after some time
-			setTimeout(function() {
-				search.destroy();
-				resolve(devices);
-			}, 8000);
-		});
-	}
+            // Stop searching and destroy after some time
+            setTimeout(() => {
+                search.destroy();
+                resolve(devices);
+            }, 8000);
+        });
+    }
 
-	capability_getCurrentTrack(device, props) {
-		return new Promise(function(resolve) {
-			var sonosDevice = new sonosInstance(device.specs.address, 1400);
-			sonosDevice.currentTrack(function(err, result) {
-				if (err) {
-					err.type = 'Driver';
-					throw err;
-				}
-				resolve({
-					artist: result.artist,
-					track: result.title,
-					album: result.album,
-					length: result.duration,
-					currentPosition: result.position,
-					artUrl: result.albumArtURL
-				});
-			});
-		});
-	}
+    command_getCurrentTrack(device) { // eslint-disable-line camelcase
+        return new Promise((resolve) => {
+            const sonosDevice = new SonosInstance(device.specs.address, 1400);
+            sonosDevice.currentTrack((err, result) => {
+                if (err) {
+                    err.type = 'Driver';
+                    throw err;
+                }
+                this.eventEmitter.emit('currentAudioTrack', 'sonos', device._id, {
+                    artist: result.artist,
+                    track: result.title,
+                    album: result.album,
+                    length: result.duration,
+                    currentPosition: result.position,
+                    artUrl: result.albumArtURL
+                });
+                resolve();
+            });
+        });
+    }
 
-	capability_getLEDState(device, props) {
-		return new Promise(function(resolve) {
-			var sonosDevice = new sonosInstance(device.specs.address, 1400);
-			sonosDevice.getLEDState(function(err, result) {
-				if (err) {
-					err.type = 'Driver';
-					throw err;
-				}
-				resolve({
-					on: result.on
-				});
-			});
-		});
-	}
+    command_getLEDState(device) { // eslint-disable-line camelcase
+        return new Promise((resolve) => {
+            const sonosDevice = new SonosInstance(device.specs.address, 1400);
+            sonosDevice.getLEDState((err, result) => {
+                if (err) {
+                    err.type = 'Driver';
+                    throw err;
+                }
+                this.eventEmitter.emit('ledState', 'sonos', device._id, {
+                    on: result.on
+                });
+                resolve();
+            });
+        });
+    }
 
-	capability_setLEDState(device, props) {
-		return new Promise(function(resolve) {
-			var sonosDevice = new sonosInstance(device.specs.address, 1400);
-			var val = "Off";
-			if (props.on === true) {
-				val = "On";
-			}
-			sonosDevice.setLEDState(val, function(err, result) {
-				if (err) {
-					err.type = 'Driver';
-					throw err;
-				}
-				resolve({
-					on: props.on
-				});
-			});
-		});
-	}
+    command_setLEDState(device, props) { // eslint-disable-line camelcase
+        return new Promise((resolve) => {
+            const sonosDevice = new SonosInstance(device.specs.address, 1400);
+            let val = 'Off';
+            if (props.on === true) {
+                val = 'On';
+            }
+            sonosDevice.setLEDState(val, (err) => {
+                if (err) {
+                    err.type = 'Driver';
+                    throw err;
+                }
+                this.eventEmitter.emit('ledState', 'sonos', device._id, {
+                    on: props.on
+                });
+                resolve();
+            });
+        });
+    }
 
-	capability_setName(device, props) {
-		return new Promise(function(resolve) {
-			var sonosDevice = new sonosInstance(device.specs.address, 1400);
-			sonosDevice.setName(props.name, function(err, result) {
-				if (err) {
-					err.type = 'Driver';
-					throw err;
-				}
-				resolve({
-					name: props.name
-				});
-			});
-		});
-	}
+    command_setName(device, props) { // eslint-disable-line camelcase
+        return new Promise((resolve) => {
+            const sonosDevice = new SonosInstance(device.specs.address, 1400);
+            sonosDevice.setName(props.name, (err) => {
+                if (err) {
+                    err.type = 'Driver';
+                    throw err;
+                }
+                this.eventEmitter.emit('name', 'sonos', device._id, {
+                    name: props.name
+                });
+                resolve();
+            });
+        });
+    }
 
-	capability_play(device, props) {
-		return new Promise(function(resolve) {
-			var sonosDevice = new sonosInstance(device.specs.address, 1400);
-			sonosDevice.play(function(err, result) {
-				if (err) {
-					err.type = 'Driver';
-					throw err;
-				}
-				if (result) {
-					resolve({
-						playing: true
-					});
-				}
-			});
-		});
-	}
+    command_play(device) { // eslint-disable-line camelcase
+        return new Promise((resolve) => {
+            const sonosDevice = new SonosInstance(device.specs.address, 1400);
+            sonosDevice.play((err, result) => {
+                if (err) {
+                    err.type = 'Driver';
+                    throw err;
+                }
+                if (result) {
+                    this.eventEmitter.emit('audioPlayingState', 'sonos', device._id, {
+                        paused: false,
+                        playing: true,
+                        stopped: false
+                    });
+                    resolve();
+                }
+            });
+        });
+    }
 
-	capability_pause(device, props) {
-		return new Promise(function(resolve) {
-			var sonosDevice = new sonosInstance(device.specs.address, 1400);
-			sonosDevice.pause(function(err, result) {
-				if (err) {
-					err.type = 'Driver';
-					throw err;
-				}
-				if (result) {
-					resolve({
-						paused: true
-					});
-				}
-			});
-		});
-	}
+    command_pause(device) { // eslint-disable-line camelcase
+        return new Promise((resolve) => {
+            const sonosDevice = new SonosInstance(device.specs.address, 1400);
+            sonosDevice.pause((err, result) => {
+                if (err) {
+                    err.type = 'Driver';
+                    throw err;
+                }
+                if (result) {
+                    this.eventEmitter.emit('audioPlayingState', 'sonos', device._id, {
+                        paused: true,
+                        playing: false,
+                        stopped: false
+                    });
+                    resolve();
+                }
+            });
+        });
+    }
 
-	capability_stop(device, props) {
-		return new Promise(function(resolve) {
-			var sonosDevice = new sonosInstance(device.specs.address, 1400);
-			sonosDevice.stop(function(err, result) {
-				if (err) {
-					err.type = 'Driver';
-					throw err;
-				}
-				if (result) {
-					resolve({
-						stopped: true
-					});
-				}
-			});
-		});
-	}
+    command_stop(device) { // eslint-disable-line camelcase
+        return new Promise((resolve) => {
+            const sonosDevice = new SonosInstance(device.specs.address, 1400);
+            sonosDevice.stop((err, result) => {
+                if (err) {
+                    err.type = 'Driver';
+                    throw err;
+                }
+                if (result) {
+                    this.eventEmitter.emit('audioPlayingState', 'sonos', device._id, {
+                        paused: false,
+                        playing: false,
+                        stopped: true
+                    });
+                    resolve();
+                }
+            });
+        });
+    }
 
-	capability_previous(device, props) {
-		return new Promise(function(resolve) {
-			var sonosDevice = new sonosInstance(device.specs.address, 1400);
-			sonosDevice.previous(function(err, result) {
-				if (err) {
-					err.type = 'Driver';
-					throw err;
-				}
-				if (result) {
-					resolve({
-						previous: true
-					});
-				}
-			});
-		});
-	}
+    command_previous(device) { // eslint-disable-line camelcase
+        return new Promise((resolve) => {
+            const sonosDevice = new SonosInstance(device.specs.address, 1400);
+            sonosDevice.previous((err, result) => {
+                if (err) {
+                    err.type = 'Driver';
+                    throw err;
+                }
+                if (result) {
+                    this.eventEmitter.emit('previousAudioTrack', 'sonos', device._id, {
+                        previous: true
+                    });
+                    resolve();
+                }
+            });
+        });
+    }
 
-	capability_next(device, props) {
-		return new Promise(function(resolve) {
-			var sonosDevice = new sonosInstance(device.specs.address, 1400);
-			sonosDevice.next(function(err, result) {
-				if (err) {
-					err.type = 'Driver';
-					throw err;
-				}
-				if (result) {
-					resolve({
-						next: true
-					});
-				}
-			});
-		});
-	}
+    command_next(device) { // eslint-disable-line camelcase
+        return new Promise((resolve) => {
+            const sonosDevice = new SonosInstance(device.specs.address, 1400);
+            sonosDevice.next((err, result) => {
+                if (err) {
+                    err.type = 'Driver';
+                    throw err;
+                }
+                if (result) {
+                    this.eventEmitter.emit('nextAudioTrack', 'sonos', device._id, {
+                        next: true
+                    });
+                    resolve();
+                }
+            });
+        });
+    }
 
-	capability_getMuted(device, props) {
-		return new Promise(function(resolve) {
-			var sonosDevice = new sonosInstance(device.specs.address, 1400);
-			sonosDevice.getMuted(function(err, result) {
-				if (err) {
-					err.type = 'Driver';
-					throw err;
-				}
-				resolve({
-					muted: result
-				});
-			});
-		});
-	}
+    command_getMuted(device) { // eslint-disable-line camelcase
+        return new Promise((resolve) => {
+            const sonosDevice = new SonosInstance(device.specs.address, 1400);
+            sonosDevice.getMuted((err, result) => {
+                if (err) {
+                    err.type = 'Driver';
+                    throw err;
+                }
+                this.eventEmitter.emit('mutedAudio', 'sonos', device._id, {
+                    muted: result
+                });
+                resolve();
+            });
+        });
+    }
 
-	capability_setMuted(device, props) {
-		return new Promise(function(resolve) {
-			var sonosDevice = new sonosInstance(device.specs.address, 1400);
-			sonosDevice.setMuted(props.muted, function(err, result) {
-				if (err) {
-					err.type = 'Driver';
-					throw err;
-				}
-				resolve({
-					muted: props.muted
-				});
-			});
-		});
-	}
+    command_setMuted(device, props) { // eslint-disable-line camelcase
+        return new Promise((resolve) => {
+            const sonosDevice = new SonosInstance(device.specs.address, 1400);
+            sonosDevice.setMuted(props.muted, (err) => {
+                if (err) {
+                    err.type = 'Driver';
+                    throw err;
+                }
+                this.eventEmitter.emit('mutedAudio', 'sonos', device._id, {
+                    muted: props.muted
+                });
+                resolve();
+            });
+        });
+    }
 
-	capability_flushQueue(device, props) {
-		return new Promise(function(resolve) {
-			var sonosDevice = new sonosInstance(device.specs.address, 1400);
-			if (err) {
-				err.type = 'Driver';
-				throw err;
-			}
-			sonosDevice.flush(function(err, result) {
-				resolve({
-					queueFlushed: true
-				});
-			});
-		});
-	}
+    command_flushQueue(device) { // eslint-disable-line camelcase
+        return new Promise((resolve) => {
+            const sonosDevice = new SonosInstance(device.specs.address, 1400);
 
-	capability_setVolume(device, props) {
-		return new Promise(function(resolve) {
-			var sonosDevice = new sonosInstance(device.specs.address, 1400);
-			sonosDevice.setVolume(props.volume, function(err, result) {
-				if (err) {
-					err.type = 'Driver';
-					throw err;
-				}
-				resolve({
-					volume: props.volume
-				});
-			});
-		});
-	}
+            sonosDevice.flush((err) => {
+                if (err) {
+                    err.type = 'Driver';
+                    throw err;
+                }
+                this.eventEmitter.emit('queueFlushed', 'sonos', device._id, {
+                    queueFlushed: true
+                });
+                resolve();
+            });
+        });
+    }
 
-	capability_seek(device, props) {
-		return new Promise(function(resolve) {
-			var sonosDevice = new sonosInstance(device.specs.address, 1400);
-			sonosDevice.seek(props.position, function(err, result) {
-				if (err) {
-					err.type = 'Driver';
-					throw err;
-				}
-				resolve({
-					position: props.position
-				});
-			});
-		});
-	}
+    command_setVolume(device, props) { // eslint-disable-line camelcase
+        return new Promise((resolve) => {
+            const sonosDevice = new SonosInstance(device.specs.address, 1400);
+            sonosDevice.setVolume(props.volume, (err) => {
+                if (err) {
+                    err.type = 'Driver';
+                    throw err;
+                }
+                this.eventEmitter.emit('volume', 'sonos', device._id, {
+                    volume: props.volume
+                });
+                resolve();
+            });
+        });
+    }
 
-	capability_addToQueueNext(device, props) {
-		return new Promise(function(resolve) {
-			var sonosDevice = new sonosInstance(device.specs.address, 1400);
-			sonosDevice.queueNext(props.uri, function(err, result) {
-				if (err) {
-					err.type = 'Driver';
-					throw err;
-				}
-				resolve({
-					queued: true
-				});
-			});
-		});
-	}
+    command_seek(device, props) { // eslint-disable-line camelcase
+        return new Promise((resolve) => {
+            const sonosDevice = new SonosInstance(device.specs.address, 1400);
+            sonosDevice.seek(props.position, (err) => {
+                if (err) {
+                    err.type = 'Driver';
+                    throw err;
+                }
+                this.eventEmitter.emit('seek', 'sonos', device._id, {
+                    position: props.position
+                });
+                resolve();
+            });
+        });
+    }
+
+    command_addToQueueNext(device, props) { // eslint-disable-line camelcase
+        return new Promise((resolve) => {
+            const sonosDevice = new SonosInstance(device.specs.address, 1400);
+            sonosDevice.queueNext(props.uri, (err) => {
+                if (err) {
+                    err.type = 'Driver';
+                    throw err;
+                }
+                this.eventEmitter.emit('addedToQueueNext', 'sonos', device._id, {
+                    queued: true
+                });
+                resolve();
+            });
+        });
+    }
 }
 
 module.exports = SonosDriver;
