@@ -356,7 +356,7 @@ module.exports = async (getSettings, updateSettings, commsInterface, sonos, even
 
   return {
     initDevices: async () => Promise.resolve,
-    authentication_getSteps: [],
+    authentication_getSteps: () => [],
     discover: async () => discover(),
     command_play: async device => commandPlay(device, sonosInstance, events, createEvent),
     command_pause: async device => commandPause(device, sonosInstance, events, createEvent),
