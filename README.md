@@ -13,6 +13,7 @@ Allows the Thinglator platform to control Sonos speakers on your local network.
 Navigate to the root of your Thinglator installation and run:
 
 > yarn add thinglator-driver-sonos
+
 > yarn dev
 
 # Installation for development
@@ -20,6 +21,7 @@ Navigate to the root of your Thinglator installation and run:
 Navigate to the root of the thinglator-driver-sonos project and run:
 
 > yarn install
+
 > yarn link
 
 Navigate to the root of your Thinglator installation and run:
