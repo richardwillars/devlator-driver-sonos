@@ -210,7 +210,7 @@ const commandPlaySpotify = async (
   region
 ) => {
   const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
-  sonosDevice.setSpotifyRegion("2311");
+  sonosDevice.setSpotifyRegion(region);
   try {
     await sonosDevice.flush();
     await sonosDevice.queue(props.uri, 1);
@@ -239,7 +239,7 @@ const commandAddSpotifyToQueueNext = async (
   region
 ) => {
   const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
-  sonosDevice.setSpotifyRegion("2311");
+  sonosDevice.setSpotifyRegion(region);
   try {
     await sonosDevice.queue(props.uri, 1);
     createEvent(events.ADDED_TO_QUEUE_NEXT, device.deviceId, {
@@ -261,6 +261,7 @@ const commandAddSpotifyToQueueBottom = async (
   region
 ) => {
   const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
+  sonosDevice.setSpotifyRegion(region);
   try {
     await sonosDevice.queue(props.uri);
     createEvent(events.ADDED_TO_QUEUE_BOTTOM, device.deviceId, {
@@ -325,7 +326,7 @@ const commandSetLEDState = async (
 const commandGetCurrentTrack = async (device, Sonos, events, createEvent) => {
   const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
   try {
-    await sonosDevice.currentTrack();
+    const result = await sonosDevice.currentTrack();
     createEvent(events.CURRENT_AUDIO_TRACK, device.deviceId, {
       artist: result.artist,
       track: result.title,
@@ -354,7 +355,7 @@ const getAuthenticationProcess = () => [
   }
 ];
 
-const authenticationStep0 = async (props, updateSettings, Sonos, events) => {
+const authenticationStep0 = async (props, updateSettings) => {
   const newSettings = {
     region: props.data
   };
@@ -395,7 +396,7 @@ module.exports = async (
         return device.getZoneInfo();
       })
       .then(info => {
-        const device = {
+        const deviceObj = {
           originalId: info.SerialNumber,
           name: attrs.CurrentZoneName,
           additionalInfo: {
@@ -438,7 +439,7 @@ module.exports = async (
             [events.NAME]: true
           }
         };
-        devices[device.originalId] = device;
+        devices[device.originalId] = deviceObj;
       })
       .catch(err => {
         console.error(err);
@@ -451,8 +452,7 @@ module.exports = async (
   return {
     initDevices: async () => Promise.resolve,
     authentication_getSteps: getAuthenticationProcess,
-    authentication_step0: props =>
-      authenticationStep0(props, updateSettings, sonosInstance, events),
+    authentication_step0: props => authenticationStep0(props, updateSettings),
     discover: async () => discover(),
     command_play: async device =>
       commandPlay(device, sonosInstance, events, createEvent),
