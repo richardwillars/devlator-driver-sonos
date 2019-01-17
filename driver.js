@@ -4,332 +4,378 @@ const devices = {};
 const discover = async () =>
   Object.keys(devices).map(originalId => devices[originalId]);
 
-const commandPlay = (device, Sonos, events, createEvent) =>
-  new Promise((resolve, reject) => {
-    const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
-    sonosDevice.play(err => {
-      if (err) {
-        err.type = "Driver";
-        reject(err);
-      } else {
-        createEvent(events.AUDIO_PLAYING_STATE, device.deviceId, {
-          paused: false,
-          playing: true,
-          stopped: false
-        });
-        resolve();
-      }
+const commandPlay = async (device, Sonos, events, createEvent) => {
+  const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
+  try {
+    await sonosDevice.play();
+    createEvent(events.AUDIO_PLAYING_STATE, device.deviceId, {
+      paused: false,
+      playing: true,
+      stopped: false
     });
-  });
+  } catch (err) {
+    err.type = "Driver";
+    throw err;
+  }
+};
 
-const commandPause = (device, Sonos, events, createEvent) =>
-  new Promise((resolve, reject) => {
-    const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
-    sonosDevice.pause(err => {
-      if (err) {
-        err.type = "Driver";
-        reject(err);
-      } else {
-        createEvent(events.AUDIO_PLAYING_STATE, device.deviceId, {
-          paused: true,
-          playing: false,
-          stopped: false
-        });
-        resolve();
-      }
+const commandPause = async (device, Sonos, events, createEvent) => {
+  const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
+  try {
+    await sonosDevice.pause();
+    createEvent(events.AUDIO_PLAYING_STATE, device.deviceId, {
+      paused: true,
+      playing: false,
+      stopped: false
     });
-  });
+  } catch (err) {
+    err.type = "Driver";
+    throw err;
+  }
+};
 
-const commandStop = (device, Sonos, events, createEvent) =>
-  new Promise((resolve, reject) => {
-    const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
-    sonosDevice.stop(err => {
-      if (err) {
-        err.type = "Driver";
-        reject(err);
-      } else {
-        createEvent(events.AUDIO_PLAYING_STATE, device.deviceId, {
-          paused: false,
-          playing: false,
-          stopped: true
-        });
-        resolve();
-      }
+const commandStop = async (device, Sonos, events, createEvent) => {
+  const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
+  try {
+    await sonosDevice.stop();
+    createEvent(events.AUDIO_PLAYING_STATE, device.deviceId, {
+      paused: false,
+      playing: false,
+      stopped: true
     });
-  });
+  } catch (err) {
+    err.type = "Driver";
+    throw err;
+  }
+};
 
-const commandPrevious = (device, Sonos, events, createEvent) =>
-  new Promise((resolve, reject) => {
-    const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
-    sonosDevice.previous(err => {
-      if (err) {
-        err.type = "Driver";
-        reject(err);
-      } else {
-        createEvent(events.PREVIOUS_AUDIO_TRACK, device.deviceId, {
-          previous: true
-        });
-        resolve();
-      }
+const commandPrevious = async (device, Sonos, events, createEvent) => {
+  const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
+  try {
+    await sonosDevice.previous();
+    createEvent(events.PREVIOUS_AUDIO_TRACK, device.deviceId, {
+      previous: true
     });
-  });
+  } catch (err) {
+    err.type = "Driver";
+    throw err;
+  }
+};
 
-const commandNext = (device, Sonos, events, createEvent) =>
-  new Promise((resolve, reject) => {
-    const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
-    sonosDevice.next(err => {
-      if (err) {
-        err.type = "Driver";
-        reject(err);
-      } else {
-        createEvent(events.NEXT_AUDIO_TRACK, device.deviceId, {
-          next: true
-        });
-        resolve();
-      }
+const commandNext = async (device, Sonos, events, createEvent) => {
+  const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
+  try {
+    await sonosDevice.next();
+    createEvent(events.NEXT_AUDIO_TRACK, device.deviceId, {
+      next: true
     });
-  });
+  } catch (err) {
+    err.type = "Driver";
+    throw err;
+  }
+};
 
-const commandGetMuted = (device, Sonos, events, createEvent) =>
-  new Promise((resolve, reject) => {
-    const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
-    sonosDevice.getMuted((err, result) => {
-      if (err) {
-        err.type = "Driver";
-        reject(err);
-      } else {
-        createEvent(events.MUTED_AUDIO, device.deviceId, {
-          muted: result
-        });
-        resolve();
-      }
+const commandGetMuted = async (device, Sonos, events, createEvent) => {
+  const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
+  try {
+    const muted = await sonosDevice.getMuted();
+    createEvent(events.MUTED_AUDIO, device.deviceId, {
+      muted
     });
-  });
+  } catch (err) {
+    err.type = "Driver";
+    throw err;
+  }
+};
 
-const commandSetMuted = (device, Sonos, events, createEvent, props) =>
-  new Promise((resolve, reject) => {
-    const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
-    sonosDevice.setMuted(props.muted, err => {
-      if (err) {
-        err.type = "Driver";
-        reject(err);
-      } else {
-        createEvent(events.MUTED_AUDIO, device.deviceId, {
-          muted: props.muted
-        });
-        resolve();
-      }
+const commandSetMuted = async (device, Sonos, events, createEvent, props) => {
+  const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
+  try {
+    await sonosDevice.setMuted(props.muted);
+    createEvent(events.MUTED_AUDIO, device.deviceId, {
+      muted: props.muted
     });
-  });
+  } catch (err) {
+    err.type = "Driver";
+    throw err;
+  }
+};
 
-const commandFlushQueue = (device, Sonos, events, createEvent) =>
-  new Promise((resolve, reject) => {
-    const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
-    sonosDevice.flush(err => {
-      if (err) {
-        err.type = "Driver";
-        reject(err);
-      } else {
-        createEvent(events.QUEUE_FLUSHED, device.deviceId, {
-          queueFlushed: true
-        });
-        resolve();
-      }
+const commandFlushQueue = async (device, Sonos, events, createEvent) => {
+  const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
+  try {
+    await sonosDevice.flush();
+    createEvent(events.QUEUE_FLUSHED, device.deviceId, {
+      queueFlushed: true
     });
-  });
+  } catch (err) {
+    err.type = "Driver";
+    throw err;
+  }
+};
 
-const commandSetVolume = (device, Sonos, events, createEvent, props) =>
-  new Promise((resolve, reject) => {
-    const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
-    sonosDevice.setVolume(props.volume, err => {
-      if (err) {
-        err.type = "Driver";
-        reject(err);
-      } else {
-        createEvent(events.VOLUME, device.deviceId, {
-          volume: props.volume
-        });
-        resolve();
-      }
+const commandSetVolume = async (device, Sonos, events, createEvent, props) => {
+  const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
+  try {
+    await sonosDevice.setVolume(props.volume);
+    createEvent(events.VOLUME, device.deviceId, {
+      volume: props.volume
     });
-  });
+  } catch (err) {
+    err.type = "Driver";
+    throw err;
+  }
+};
 
-const commandSeek = (device, Sonos, events, createEvent, props) =>
-  new Promise((resolve, reject) => {
-    const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
-    sonosDevice.seek(props.position, err => {
-      if (err) {
-        err.type = "Driver";
-        reject(err);
-      } else {
-        createEvent(events.SEEK, device.deviceId, {
-          position: props.position
-        });
-        resolve();
-      }
+const commandSeek = async (device, Sonos, events, createEvent, props) => {
+  const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
+  try {
+    await sonosDevice.seek(props.position);
+    createEvent(events.SEEK, device.deviceId, {
+      position: props.position
     });
-  });
+  } catch (err) {
+    err.type = "Driver";
+    throw err;
+  }
+};
 
-const commandAddUrlToQueueNext = (device, Sonos, events, createEvent, props) =>
-  new Promise((resolve, reject) => {
-    const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
-    sonosDevice.queueNext(props.uri, err => {
-      if (err) {
-        err.type = "Driver";
-        reject(err);
-      } else {
-        createEvent(events.ADDED_TO_QUEUE_NEXT, device.deviceId, {
-          queued: true,
-          uri: props.uri
-        });
-        resolve();
-      }
-    });
-  });
-
-const commandAddUrlToQueueBottom = (
+const commandAddUrlToQueueNext = async (
   device,
   Sonos,
   events,
   createEvent,
   props
-) =>
-  new Promise((resolve, reject) => {
-    const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
-    sonosDevice.queue(props.uri, err => {
-      if (err) {
-        err.type = "Driver";
-        reject(err);
-      } else {
-        createEvent(events.ADDED_TO_QUEUE_BOTTOM, device.deviceId, {
-          queued: true,
-          uri: props.uri
-        });
-        resolve();
-      }
+) => {
+  const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
+  try {
+    await sonosDevice.queue(props.uri, 1);
+    createEvent(events.ADDED_TO_QUEUE_NEXT, device.deviceId, {
+      queued: true,
+      uri: props.uri
     });
-  });
+  } catch (err) {
+    err.type = "Driver";
+    throw err;
+  }
+};
 
-const commandAddSpotifyToQueueNext = (
+const commandAddUrlToQueueBottom = async (
   device,
   Sonos,
   events,
   createEvent,
   props
-) =>
-  new Promise((resolve, reject) => {
-    const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
-    sonosDevice.queueNext(props.uri, err => {
-      if (err) {
-        err.type = "Driver";
-        reject(err);
-      } else {
-        createEvent(events.ADDED_TO_QUEUE_NEXT, device.deviceId, {
-          queued: true,
-          uri: props.uri
-        });
-        resolve();
-      }
+) => {
+  const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
+  try {
+    await sonosDevice.queue(props.uri);
+    createEvent(events.ADDED_TO_QUEUE_BOTTOM, device.deviceId, {
+      queued: true,
+      uri: props.uri
     });
-  });
+  } catch (err) {
+    err.type = "Driver";
+    throw err;
+  }
+};
 
-const commandAddSpotifyToQueueBottom = (
+const commandPlayUrl = async (device, Sonos, events, createEvent, props) => {
+  const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
+  try {
+    await sonosDevice.flush();
+    await sonosDevice.queue(props.uri, 1);
+    await sonosDevice.play();
+    createEvent(events.ADDED_TO_QUEUE_NEXT, device.deviceId, {
+      queued: true,
+      uri: props.uri
+    });
+    createEvent(events.AUDIO_PLAYING_STATE, device.deviceId, {
+      paused: false,
+      playing: true,
+      stopped: false
+    });
+  } catch (err) {
+    err.type = "Driver";
+    throw err;
+  }
+};
+
+const commandPlaySpotify = async (
+  device,
+  Sonos,
+  events,
+  createEvent,
+  props,
+  region
+) => {
+  const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
+  sonosDevice.setSpotifyRegion("2311");
+  try {
+    await sonosDevice.flush();
+    await sonosDevice.queue(props.uri, 1);
+    await sonosDevice.play();
+    createEvent(events.ADDED_TO_QUEUE_NEXT, device.deviceId, {
+      queued: true,
+      uri: props.uri
+    });
+    createEvent(events.AUDIO_PLAYING_STATE, device.deviceId, {
+      paused: false,
+      playing: true,
+      stopped: false
+    });
+  } catch (err) {
+    err.type = "Driver";
+    throw err;
+  }
+};
+
+const commandAddSpotifyToQueueNext = async (
+  device,
+  Sonos,
+  events,
+  createEvent,
+  props,
+  region
+) => {
+  const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
+  sonosDevice.setSpotifyRegion("2311");
+  try {
+    await sonosDevice.queue(props.uri, 1);
+    createEvent(events.ADDED_TO_QUEUE_NEXT, device.deviceId, {
+      queued: true,
+      uri: props.uri
+    });
+  } catch (err) {
+    err.type = "Driver";
+    throw err;
+  }
+};
+
+const commandAddSpotifyToQueueBottom = async (
+  device,
+  Sonos,
+  events,
+  createEvent,
+  props,
+  region
+) => {
+  const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
+  try {
+    await sonosDevice.queue(props.uri);
+    createEvent(events.ADDED_TO_QUEUE_BOTTOM, device.deviceId, {
+      queued: true,
+      uri: props.uri
+    });
+  } catch (err) {
+    err.type = "Driver";
+    throw err;
+  }
+};
+
+const commandSetName = async (device, Sonos, events, createEvent, props) => {
+  const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
+  try {
+    await sonosDevice.setName(props.name);
+    createEvent(events.NAME, device.deviceId, {
+      name: props.name
+    });
+  } catch (err) {
+    err.type = "Driver";
+    throw err;
+  }
+};
+
+const commandGetLEDState = async (device, Sonos, events, createEvent) => {
+  const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
+  try {
+    const led = await sonosDevice.getLEDState();
+    createEvent(events.LED_STATE, device.deviceId, {
+      on: led === "On"
+    });
+  } catch (err) {
+    err.type = "Driver";
+    throw err;
+  }
+};
+
+const commandSetLEDState = async (
   device,
   Sonos,
   events,
   createEvent,
   props
-) =>
-  new Promise((resolve, reject) => {
-    const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
-    sonosDevice.queue(props.uri, err => {
-      if (err) {
-        err.type = "Driver";
-        reject(err);
-      } else {
-        createEvent(events.ADDED_TO_QUEUE_BOTTOM, device.deviceId, {
-          queued: true,
-          uri: props.uri
-        });
-        resolve();
-      }
-    });
-  });
-
-const commandSetName = (device, Sonos, events, createEvent, props) =>
-  new Promise((resolve, reject) => {
-    const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
-    sonosDevice.setName(props.name, err => {
-      if (err) {
-        err.type = "Driver";
-        reject(err);
-      } else {
-        createEvent(events.NAME, device.deviceId, {
-          name: props.name
-        });
-        resolve();
-      }
-    });
-  });
-
-const commandGetLEDState = (device, Sonos, events, createEvent) =>
-  new Promise((resolve, reject) => {
-    const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
-    sonosDevice.getLEDState((err, result) => {
-      if (err) {
-        err.type = "Driver";
-        reject(err);
-      } else {
-        createEvent(events.LED_STATE, device.deviceId, {
-          on: result === "On"
-        });
-        resolve();
-      }
-    });
-  });
-
-const commandSetLEDState = (device, Sonos, events, createEvent, props) =>
-  new Promise((resolve, reject) => {
-    const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
+) => {
+  const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
+  try {
     let val = "Off";
     if (props.on === true) {
       val = "On";
     }
-    sonosDevice.setLEDState(val, err => {
-      if (err) {
-        err.type = "Driver";
-        reject(err);
-      } else {
-        createEvent(events.LED_STATE, device.deviceId, {
-          on: props.on
-        });
-        resolve();
-      }
+    await sonosDevice.setLEDState(val);
+    createEvent(events.LED_STATE, device.deviceId, {
+      on: props.on
     });
-  });
+  } catch (err) {
+    err.type = "Driver";
+    throw err;
+  }
+};
 
-const commandGetCurrentTrack = (device, Sonos, events, createEvent) =>
-  new Promise((resolve, reject) => {
-    const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
-    sonosDevice.currentTrack((err, result) => {
-      if (err) {
-        err.type = "Driver";
-        reject(err);
-      } else {
-        createEvent(events.CURRENT_AUDIO_TRACK, device.deviceId, {
-          artist: result.artist,
-          track: result.title,
-          album: result.album,
-          length: result.duration,
-          currentPosition: result.position,
-          duration: result.duration,
-          artUrl: result.albumArtURL,
-          uri: result.uri
-        });
-        resolve();
-      }
+const commandGetCurrentTrack = async (device, Sonos, events, createEvent) => {
+  const sonosDevice = new Sonos(device.additionalInfo.address, 1400);
+  try {
+    await sonosDevice.currentTrack();
+    createEvent(events.CURRENT_AUDIO_TRACK, device.deviceId, {
+      artist: result.artist,
+      track: result.title,
+      album: result.album,
+      length: result.duration,
+      currentPosition: result.position,
+      duration: result.duration,
+      artUrl: result.albumArtURL,
+      uri: result.uri
     });
-  });
+  } catch (err) {
+    err.type = "Driver";
+    throw err;
+  }
+};
+
+const getAuthenticationProcess = () => [
+  {
+    type: "RequestData",
+    message: "For spotify usage, which region are you in? EU or US", // eslint-disable-line max-len
+    button: {
+      url: "",
+      label: "Region"
+    },
+    dataLabel: "Region"
+  }
+];
+
+const authenticationStep0 = async (props, updateSettings, Sonos, events) => {
+  const newSettings = {
+    region: props.data
+  };
+  try {
+    await updateSettings(newSettings);
+
+    return {
+      success: true,
+      message: "Authenticated"
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: err.error || err.message
+    };
+  }
+};
+
+const removeDevice = deviceId => {
+  delete devices[deviceId];
+};
 
 module.exports = async (
   getSettings,
@@ -339,22 +385,16 @@ module.exports = async (
   events,
   createEvent
 ) => {
-  const sonosInstance = sonos.Sonos;
-  const search = sonos.search();
-
-  search.on("DeviceAvailable", deviceObj => {
-    deviceObj.getZoneAttrs((err, attrs) => {
-      if (err) {
-        const e = new Error("Failed to retrieve zone attributes");
-        e.type = "Driver";
-        throw e;
-      }
-      deviceObj.getZoneInfo((err2, info) => {
-        if (err2) {
-          const e = new Error("Failed to retrieve zone information");
-          e.type = "Driver";
-          throw e;
-        }
+  const settings = await getSettings();
+  sonos.DeviceDiscovery(device => {
+    let attrs;
+    return device
+      .getZoneAttrs()
+      .then(attrsObj => {
+        attrs = attrsObj;
+        return device.getZoneInfo();
+      })
+      .then(info => {
         const device = {
           originalId: info.SerialNumber,
           name: attrs.CurrentZoneName,
@@ -374,6 +414,8 @@ module.exports = async (
             addUrlToQueueBottom: true,
             addSpotifyToQueueNext: true,
             addSpotifyToQueueBottom: true,
+            playSpotify: true,
+            playUrl: true,
             seek: true,
             setLEDState: true,
             setMuted: true,
@@ -397,13 +439,20 @@ module.exports = async (
           }
         };
         devices[device.originalId] = device;
+      })
+      .catch(err => {
+        console.error(err);
       });
-    });
   });
+
+  const sonosInstance = sonos.Sonos;
+  const region = sonos.SpotifyRegion[settings.region];
 
   return {
     initDevices: async () => Promise.resolve,
-    authentication_getSteps: () => [],
+    authentication_getSteps: getAuthenticationProcess,
+    authentication_step0: props =>
+      authenticationStep0(props, updateSettings, sonosInstance, events),
     discover: async () => discover(),
     command_play: async device =>
       commandPlay(device, sonosInstance, events, createEvent),
@@ -447,7 +496,8 @@ module.exports = async (
         sonosInstance,
         events,
         createEvent,
-        props
+        props,
+        region
       ),
     command_addSpotifyToQueueBottom: async (device, props) =>
       commandAddSpotifyToQueueBottom(
@@ -455,7 +505,19 @@ module.exports = async (
         sonosInstance,
         events,
         createEvent,
-        props
+        props,
+        region
+      ),
+    command_playUrl: async (device, props) =>
+      commandPlayUrl(device, sonosInstance, events, createEvent, props, region),
+    command_playSpotify: async (device, props) =>
+      commandPlaySpotify(
+        device,
+        sonosInstance,
+        events,
+        createEvent,
+        props,
+        region
       ),
     command_setName: async (device, props) =>
       commandSetName(device, sonosInstance, events, createEvent, props),
@@ -464,6 +526,7 @@ module.exports = async (
     command_setLEDState: async (device, props) =>
       commandSetLEDState(device, sonosInstance, events, createEvent, props),
     command_getCurrentTrack: async device =>
-      commandGetCurrentTrack(device, sonosInstance, events, createEvent)
+      commandGetCurrentTrack(device, sonosInstance, events, createEvent),
+    removeDevice: async deviceId => removeDevice(deviceId)
   };
 };

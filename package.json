@@ -14,7 +14,7 @@
     "url": "https://github.com/richardwillars/thinglator-driver-sonos.git"
   },
   "dependencies": {
-    "sonos": "^0.17.0"
+    "sonos": "^1.8.1"
   },
   "peerDependencies": {
     "thinglator": "3.x"
