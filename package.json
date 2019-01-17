@@ -2,7 +2,7 @@
   "name": "thinglator-driver-sonos",
   "license": "MIT",
   "description": "Allows the Thinglator platform to talk to Sonos speakers",
-  "version": "3.0.2",
+  "version": "4.1.0",
   "maintainers": [
     {
       "name": "Richard Willars",
@@ -14,7 +14,7 @@
     "url": "https://github.com/richardwillars/thinglator-driver-sonos.git"
   },
   "dependencies": {
-    "sonos": "^0.17.0"
+    "sonos": "^1.8.1"
   },
   "peerDependencies": {
     "thinglator": "3.x"
